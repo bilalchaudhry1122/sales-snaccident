@@ -15,7 +15,6 @@ import {
   Search, 
   ShoppingBag, 
   User, 
-  Phone,
   ArrowRight,
   CheckCircle2,
   Loader2,
@@ -36,7 +35,6 @@ export default function CounterAPage() {
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [cart, setCart] = useState<any[]>([]);
   const [customerName, setCustomerName] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [activeDiscounts, setActiveDiscounts] = useState<any[]>([]);
@@ -159,7 +157,6 @@ export default function CounterAPage() {
     try {
       const payload: any = {
         customerName,
-        customerPhone,
         items: cartWithDiscounts.map(item => {
           const orderItem: any = {
             menuItemId: item.menuItemId || item._id,
@@ -198,7 +195,6 @@ export default function CounterAPage() {
         setSuccessOrder(data.orderNumber);
         setCart([]);
         setCustomerName("");
-        setCustomerPhone("");
       } else {
         alert(data.error || "Failed to place order");
       }
@@ -241,7 +237,6 @@ export default function CounterAPage() {
       quantity: i.quantity
     })));
     setCustomerName(order.customerName);
-    setCustomerPhone(order.customerPhone || "");
     
     // Switch to menu view
     setViewMode('menu');
@@ -521,15 +516,6 @@ export default function CounterAPage() {
                   className="pl-14 h-16 rounded-2xl bg-slate-50 border-slate-200 text-black font-black text-xl placeholder:text-slate-300 focus-visible:ring-indigo-500" 
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                />
-              </div>
-              <div className="relative">
-                <Phone className="absolute left-5 top-1/2 -translate-y-1/2 h-6 w-6 text-slate-400" />
-                <Input 
-                  placeholder="Phone (Optional)" 
-                  className="pl-14 h-16 rounded-2xl bg-slate-50 border-slate-200 text-black font-black text-xl placeholder:text-slate-300 focus-visible:ring-indigo-500" 
-                  value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
                 />
               </div>
             </div>

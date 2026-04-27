@@ -15,7 +15,6 @@ const OrderItemSchema = new mongoose.Schema({
 const OrderSchema = new mongoose.Schema({
   orderNumber: { type: String, required: true, unique: true },
   customerName: { type: String, required: true },
-  customerPhone: { type: String },
   items: [OrderItemSchema],
   subtotal: { type: Number, required: true },
   orderDiscount: {

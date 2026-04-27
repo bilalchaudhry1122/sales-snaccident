@@ -8,10 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Search, 
-  Eye, 
-  XCircle, 
+import {
+  Search,
+  Eye,
+  XCircle,
   AlertTriangle,
   Loader2,
   Filter,
@@ -24,7 +24,7 @@ export default function OrderManagerPage() {
   useOrderStream(); // Subscribes to real-time events
   const ordersMap = useOrderStore((state) => state.orders);
   const setOrders = useOrderStore((state) => state.setOrders);
-  
+
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -76,8 +76,8 @@ export default function OrderManagerPage() {
   const ordersList = useMemo(() => {
     return Array.from(ordersMap.values())
       .filter(order => {
-        const matchesSearch = order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                              order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesSearch = order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesStatus = filterStatus === "all" || order.status === filterStatus;
         return matchesSearch && matchesStatus;
       })
@@ -108,51 +108,51 @@ export default function OrderManagerPage() {
       <div className="flex flex-wrap items-center gap-4">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input 
-            placeholder="Search by order # or customer..." 
-            className="pl-10 h-10 border-slate-200 bg-white text-black font-black shadow-sm" 
+          <Input
+            placeholder="Search by order # or customer..."
+            className="pl-10 h-10 border-slate-200 bg-white text-black font-black shadow-sm"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
         <div className="flex items-center gap-2">
-          <Button 
-            variant={filterStatus === 'all' ? 'default' : 'outline'} 
+          <Button
+            variant={filterStatus === 'all' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilterStatus('all')}
           >
             All
           </Button>
-          <Button 
-            variant={filterStatus === 'pending' ? 'default' : 'outline'} 
+          <Button
+            variant={filterStatus === 'pending' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilterStatus('pending')}
           >
             Pending
           </Button>
-          <Button 
-            variant={filterStatus === 'preparing' ? 'default' : 'outline'} 
+          <Button
+            variant={filterStatus === 'preparing' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilterStatus('preparing')}
           >
             Preparing
           </Button>
-          <Button 
-            variant={filterStatus === 'ready' ? 'default' : 'outline'} 
+          <Button
+            variant={filterStatus === 'ready' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilterStatus('ready')}
           >
             Ready
           </Button>
-          <Button 
-            variant={filterStatus === 'delivered' ? 'default' : 'outline'} 
+          <Button
+            variant={filterStatus === 'delivered' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilterStatus('delivered')}
           >
             Delivered
           </Button>
-          <Button 
-            variant={filterStatus === 'cancelled' ? 'default' : 'outline'} 
+          <Button
+            variant={filterStatus === 'cancelled' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilterStatus('cancelled')}
           >
@@ -200,7 +200,7 @@ export default function OrderManagerPage() {
                   <TableCell>
                     <div className="flex flex-col">
                       <span className="font-black text-black">{order.customerName}</span>
-                      <span className="text-xs text-slate-500 font-black">{order.customerPhone || 'No phone'}</span>
+
                     </div>
                   </TableCell>
                   <TableCell>
@@ -216,9 +216,9 @@ export default function OrderManagerPage() {
                         <Eye className="h-3.5 w-3.5" strokeWidth={3} />
                       </Button>
                       {['pending', 'preparing', 'ready'].includes(order.status) && (
-                        <Button 
-                          variant="outline" 
-                          size="icon" 
+                        <Button
+                          variant="outline"
+                          size="icon"
                           className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50 border-red-100"
                           onClick={() => cancelOrder(order._id)}
                           disabled={cancellingId === order._id}
@@ -256,13 +256,12 @@ export default function OrderManagerPage() {
               <div className="flex items-center justify-between bg-slate-50 p-6 rounded-2xl border border-slate-100">
                 <div>
                   <h4 className="font-black text-black text-xl">{viewingOrder.customerName}</h4>
-                  <p className="text-sm text-slate-500 font-black mt-1">{viewingOrder.customerPhone || 'No phone number provided'}</p>
                 </div>
                 <div className="scale-125">
                   {getStatusBadge(viewingOrder.status)}
                 </div>
               </div>
-              
+
               <div className="space-y-4">
                 <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">Order Items</h4>
                 <div className="bg-slate-50/50 rounded-2xl border border-slate-100 p-6 space-y-4">

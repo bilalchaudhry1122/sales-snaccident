@@ -113,7 +113,6 @@ export default function AuditReportPage() {
           OrderNumber: order.orderNumber,
           PlacedAt: format(new Date(order.placedAt), "yyyy-MM-dd HH:mm:ss"),
           Customer: order.customerName,
-          Phone: order.customerPhone || '',
           Status: order.status,
           Items: order.items.map((i: any) => `${i.quantity}x ${i.name}`).join("; "),
           Subtotal: order.subtotal,

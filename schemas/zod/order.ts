@@ -14,7 +14,6 @@ const orderItemSchema = z.object({
 
 export const createOrderSchema = z.object({
   customerName: z.string().min(1, "Customer name is required"),
-  customerPhone: z.string().optional(),
   items: z.array(orderItemSchema).min(1, "At least one item is required"),
   subtotal: z.number().int(),
   orderDiscount: z.object({
