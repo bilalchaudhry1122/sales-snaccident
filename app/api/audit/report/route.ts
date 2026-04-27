@@ -27,8 +27,8 @@ export const GET = withRole(["admin"])(async (req: NextRequest) => {
   // Calculate summary
   let totalRevenue = 0;
   let totalDiscounts = 0;
-  const delivered = [];
-  const cancelled = [];
+  const delivered: any[] = [];
+  const cancelled: any[] = [];
   
   orders.forEach((order: any) => {
     if (order.status === 'delivered') {
