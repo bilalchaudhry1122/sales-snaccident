@@ -21,9 +21,10 @@ import {
 import { format } from "date-fns";
 
 export default function OrderManagerPage() {
-  useOrderStream(); // Subscribes to real-time events
+  useOrderStream();
   const ordersMap = useOrderStore((state) => state.orders);
-  const setOrders = useOrderStore((state) => state.setOrders);
+  const fetchAndSetOrders = useOrderStore((state) => state.fetchAndSetOrders);
+  const storeLoading = useOrderStore((state) => state.isLoading);
 
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -31,21 +32,25 @@ export default function OrderManagerPage() {
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [viewingOrder, setViewingOrder] = useState<any | null>(null);
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [paginationInfo, setPaginationInfo] = useState<any>(null);
 
-  const fetchOrders = async () => {
+  useEffect(() => {
+    fetchOrders(1, filterStatus);
+  }, [filterStatus, fetchAndSetOrders]);
+
+  const fetchOrders = async (pageToFetch: number, statusFilter: string) => {
+    if (pageToFetch === 1) setLoading(true);
     try {
-      const res = await fetch("/api/orders?status=all");
-      if (!res.ok) {
-        if (res.status === 401 || res.status === 403) {
-          alert("Session expired or unauthorized. Please refresh the page or log in again as Admin.");
-        }
-        return;
+      const pInfo = await fetchAndSetOrders({ 
+        status: statusFilter, 
+        limit: 50, 
+        page: pageToFetch 
+      });
+      if (pInfo) {
+        setPaginationInfo(pInfo);
+        setCurrentPage(pInfo.page);
       }
-      const data = await res.json();
-      setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -233,6 +238,19 @@ export default function OrderManagerPage() {
             )}
           </TableBody>
         </Table>
+        {paginationInfo && currentPage < paginationInfo.pages && (
+          <div className="p-6 border-t border-slate-100 flex justify-center bg-slate-50/50">
+            <Button 
+              variant="outline" 
+              onClick={() => fetchOrders(currentPage + 1, filterStatus)}
+              disabled={storeLoading}
+              className="font-black bg-white shadow-sm border-slate-200 text-slate-600 hover:text-black px-8 h-10 rounded-xl"
+            >
+              {storeLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Load More Orders (Showing {ordersList.length} of {paginationInfo.total})
+            </Button>
+          </div>
+        )}
       </Card>
 
       {/* View Order Modal */}
@@ -280,12 +298,19 @@ export default function OrderManagerPage() {
               <div className="space-y-4 border-t border-slate-100 pt-8">
                 <div className="flex justify-between text-base text-slate-500 font-black">
                   <span>Subtotal</span>
-                  <span>PKR {viewingOrder.subtotal.toLocaleString()}</span>
+                  <span>PKR {(viewingOrder.subtotal ?? viewingOrder.totalAmount).toLocaleString()}</span>
                 </div>
-                {viewingOrder.orderDiscount && (
+                {viewingOrder.orderDiscount && viewingOrder.subtotal > viewingOrder.totalAmount && (
                   <div className="flex justify-between text-base text-emerald-600 font-black">
-                    <span>Discount applied</span>
-                    <span>- PKR {(viewingOrder.subtotal - viewingOrder.totalAmount).toLocaleString()}</span>
+                    <span className="flex items-center gap-2">
+                      Discount
+                      {viewingOrder.orderDiscount.label && (
+                        <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full uppercase tracking-wider font-black">
+                          {viewingOrder.orderDiscount.label}
+                        </span>
+                      )}
+                    </span>
+                    <span>- PKR {((viewingOrder.subtotal ?? viewingOrder.totalAmount) - viewingOrder.totalAmount).toLocaleString()}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-3xl font-black text-black pt-4 border-t border-dashed border-slate-200">

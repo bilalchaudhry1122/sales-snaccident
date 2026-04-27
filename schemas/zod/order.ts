@@ -6,7 +6,7 @@ const orderItemSchema = z.object({
   priceAtOrder: z.number().int(),
   quantity: z.number().int().positive(),
   itemDiscount: z.object({
-    type: z.enum(["percent", "flat"]),
+    discountType: z.enum(["percent", "flat"]),
     value: z.number()
   }).optional().nullable(),
   lineTotal: z.number().int()
@@ -17,8 +17,9 @@ export const createOrderSchema = z.object({
   items: z.array(orderItemSchema).min(1, "At least one item is required"),
   subtotal: z.number().int(),
   orderDiscount: z.object({
-    type: z.enum(["percent", "flat"]),
-    value: z.number()
+    discountType: z.enum(["percent", "flat"]),
+    value: z.number(),
+    label: z.string().optional()
   }).optional().nullable(),
   totalAmount: z.number().int(),
   notes: z.string().optional()
@@ -26,5 +27,5 @@ export const createOrderSchema = z.object({
 
 export const orderStatusSchema = z.object({
   status: z.enum(["pending", "preparing", "ready", "delivered", "cancelled", "failed"]),
-  reason: z.string().optional() // for cancellation or failure
+  reason: z.string().optional()
 });

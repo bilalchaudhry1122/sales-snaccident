@@ -20,13 +20,27 @@ async function dbConnect() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      // Connection pool tuned for high concurrency (1000s of orders)
+      maxPoolSize: 20,          // max 20 simultaneous connections
+      minPoolSize: 5,           // keep 5 warm connections ready
+      serverSelectionTimeoutMS: 10000, // fail fast if server is unreachable
+      socketTimeoutMS: 45000,   // close sockets idle for 45s
+      connectTimeoutMS: 10000,  // initial connection timeout
+      heartbeatFrequencyMS: 10000,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      return mongoose;
-    });
+    cached.promise = mongoose
+      .connect(MONGODB_URI, opts)
+      .then((mongooseInstance) => mongooseInstance);
   }
-  cached.conn = await cached.promise;
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (err) {
+    cached.promise = null; // allow retry on next call
+    throw err;
+  }
+
   return cached.conn;
 }
 

@@ -6,9 +6,9 @@ import Sale from "@/models/Sale";
 import { withRole } from "@/lib/withRole";
 import { logAudit } from "@/lib/auditLogger";
 
-export const PATCH = withRole(["admin", "counter_b"])(async (req: NextRequest, session: any, { params }: { params: { id: string } }) => {
+export const PATCH = withRole(["admin", "counter_b"])(async (req: NextRequest, session: any, context: any) => {
   await dbConnect();
-  const { id } = params;
+  const { id } = await Promise.resolve(context.params);
 
   const mongoSession = await mongoose.startSession();
   mongoSession.startTransaction();
@@ -30,15 +30,15 @@ export const PATCH = withRole(["admin", "counter_b"])(async (req: NextRequest, s
     await order.save({ session: mongoSession });
 
     // Calculate discount amount for sales record
-    const discountAmount = order.subtotal - order.totalAmount;
+    const discountAmount = (order.subtotal || order.totalAmount) - order.totalAmount;
 
     const saleData = {
       orderId: order._id,
       orderNumber: order.orderNumber,
       customerName: order.customerName,
       items: order.items,
-      subtotal: order.subtotal,
-      discountAmount,
+      subtotal: order.subtotal || order.totalAmount,
+      discountAmount: Math.max(0, discountAmount),
       totalAmount: order.totalAmount,
       deliveredBy: session.user.id,
       placedBy: order.placedBy,
@@ -61,7 +61,8 @@ export const PATCH = withRole(["admin", "counter_b"])(async (req: NextRequest, s
     return NextResponse.json(order);
   } catch (error: any) {
     await mongoSession.abortTransaction();
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    console.error("PATCH /api/orders/[id]/deliver error:", error);
+    return NextResponse.json({ error: error.message || "Failed to deliver order" }, { status: 400 });
   } finally {
     mongoSession.endSession();
   }

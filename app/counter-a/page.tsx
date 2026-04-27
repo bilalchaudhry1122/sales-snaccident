@@ -27,10 +27,10 @@ import {
 import { format } from "date-fns";
 
 export default function CounterAPage() {
-  useOrderStream(); // Listen to real-time updates
+  useOrderStream();
   const ordersMap = useOrderStore((state) => state.orders);
-  const setOrders = useOrderStore((state) => state.setOrders);
-  
+  const fetchAndSetOrders = useOrderStore((state) => state.fetchAndSetOrders);
+
   const [viewMode, setViewMode] = useState<'menu' | 'orders'>('menu');
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [cart, setCart] = useState<any[]>([]);
@@ -43,42 +43,47 @@ export default function CounterAPage() {
   const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   useEffect(() => {
+    const fetchMenu = async () => {
+      setLoading(true);
+      try {
+        const [menuRes, discountsRes] = await Promise.all([
+          fetch("/api/menu"),
+          fetch("/api/discounts")
+        ]);
+
+        if (menuRes.ok) {
+          const menuData = await menuRes.json();
+          setMenuItems(menuData);
+        }
+
+        if (discountsRes.ok) {
+          const discountsData = await discountsRes.json();
+          // Only use array result (guard against error objects)
+          if (Array.isArray(discountsData)) {
+            setActiveDiscounts(discountsData.filter((d: any) => d.isActive));
+          }
+        } else {
+          console.error("Failed to load discounts, status:", discountsRes.status);
+        }
+      } catch (err) {
+        console.error("fetchMenu error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchInitialOrders = async () => {
+      try {
+        // Fetch active orders only for counter screen (keeps payload tiny)
+        await fetchAndSetOrders({ limit: 100 });
+      } catch (err) {
+        console.error("Failed to fetch initial orders", err);
+      }
+    };
+
     fetchMenu();
     fetchInitialOrders();
-  }, []);
-
-  const fetchMenu = async () => {
-    setLoading(true);
-    try {
-      const [menuRes, discountsRes] = await Promise.all([
-        fetch("/api/menu"),
-        fetch("/api/discounts")
-      ]);
-      const menuData = await menuRes.json();
-      setMenuItems(menuData);
-
-      if (discountsRes.ok) {
-        const discountsData = await discountsRes.json();
-        setActiveDiscounts(discountsData.filter((d: any) => d.isActive));
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchInitialOrders = async () => {
-    try {
-      const res = await fetch("/api/orders?status=all");
-      if (res.ok) {
-        const data = await res.json();
-        setOrders(data);
-      }
-    } catch (err) {
-      console.error("Failed to fetch initial orders", err);
-    }
-  };
+  }, [fetchAndSetOrders]);
 
   const addToCart = (item: any) => {
     setCart(prev => {
@@ -112,7 +117,10 @@ export default function CounterAPage() {
     let lineTotal = basePrice * item.quantity;
     
     // Check for item specific discount
-    const itemDiscountDef = itemDiscounts.find(d => d.menuItemId?._id === itemId || d.menuItemId === itemId);
+    const itemDiscountDef = itemDiscounts.find(d => {
+      const discountItemId = d.menuItemId?._id?.toString() || d.menuItemId?.toString() || d.menuItemId;
+      return discountItemId === itemId?.toString();
+    });
     let itemDiscountVal = 0;
     
     if (itemDiscountDef) {
@@ -167,7 +175,7 @@ export default function CounterAPage() {
           };
           if (item.itemDiscountApplied) {
             orderItem.itemDiscount = {
-              type: item.itemDiscountApplied.type,
+              discountType: item.itemDiscountApplied.type,
               value: item.itemDiscountApplied.value
             };
           }
@@ -179,8 +187,9 @@ export default function CounterAPage() {
 
       if (globalDiscountAmount > 0 && globalDiscount) {
         payload.orderDiscount = {
-          type: globalDiscount.type,
-          value: globalDiscount.value
+          discountType: globalDiscount.type,
+          value: globalDiscount.value,
+          label: globalDiscount.label
         };
       }
 

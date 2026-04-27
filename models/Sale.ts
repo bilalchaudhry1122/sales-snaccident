@@ -5,12 +5,13 @@ const SaleItemSchema = new mongoose.Schema({
   name: { type: String, required: true },
   priceAtOrder: { type: Number, required: true },
   quantity: { type: Number, required: true },
-  itemDiscount: { 
-    type: { type: String, enum: ['percent', 'flat'] },
+  itemDiscount: {
+    discountType: { type: String, enum: ['percent', 'flat'] },
     value: { type: Number }
   },
   lineTotal: { type: Number, required: true }
 }, { _id: false });
+
 
 const SaleSchema = new mongoose.Schema({
   orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', required: true },
