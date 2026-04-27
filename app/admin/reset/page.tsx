@@ -80,7 +80,7 @@ export default function SystemResetPage() {
             <div>
               <h4 className="text-xl font-bold text-slate-900">Factory Reset System</h4>
               <p className="text-slate-500 text-sm mt-1 max-w-xl">
-                Permanently delete all Orders, Sales, and Audit Logs. This will reset the system's transactional state to zero. This action is irreversible.
+                Permanently delete all Orders, Sales, and Audit Logs. This will reset the system&apos;s transactional state to zero. This action is irreversible.
               </p>
             </div>
             <Button variant="destructive" className="font-bold shadow-lg shadow-red-500/20" onClick={() => setIsResetModalOpen(true)}>

@@ -120,7 +120,7 @@ export default function AdminDashboard() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-4xl font-black tracking-tight text-black">Dashboard Overview</h2>
-          <p className="text-lg text-slate-600 mt-1 font-black">Welcome back! Here is what's happening right now.</p>
+          <p className="text-lg text-slate-600 mt-1 font-black">Welcome back! Here is what&apos;s happening right now.</p>
         </div>
         <Link href="/admin/audit">
           <Button size="lg" className="h-12 px-6 text-base font-black shadow-lg shadow-black/5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white border-none">

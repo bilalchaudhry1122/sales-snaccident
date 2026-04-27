@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useOrderStore } from "@/store/orderStore";
 import { useOrderStream } from "@/hooks/useOrderStream";
 import { Button } from "@/components/ui/button";
@@ -35,11 +35,7 @@ export default function OrderManagerPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [paginationInfo, setPaginationInfo] = useState<any>(null);
 
-  useEffect(() => {
-    fetchOrders(1, filterStatus);
-  }, [filterStatus, fetchAndSetOrders]);
-
-  const fetchOrders = async (pageToFetch: number, statusFilter: string) => {
+  const fetchOrders = useCallback(async (pageToFetch: number, statusFilter: string) => {
     if (pageToFetch === 1) setLoading(true);
     try {
       const pInfo = await fetchAndSetOrders({ 
@@ -56,7 +52,11 @@ export default function OrderManagerPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchAndSetOrders]);
+
+  useEffect(() => {
+    fetchOrders(1, filterStatus);
+  }, [filterStatus, fetchOrders]);
 
   const cancelOrder = async (id: string) => {
     if (!confirm("Are you sure you want to cancel this order?")) return;
