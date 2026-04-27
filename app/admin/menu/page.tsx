@@ -240,13 +240,13 @@ export default function MenuManagerPage() {
                 <div className="space-y-2.5">
                   <label className="text-sm font-black text-slate-700 ml-1 uppercase tracking-widest">Price (PKR)</label>
                   <div className="relative">
-                    <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-slate-400 text-base">Rs.</span>
+                    <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-slate-400 text-base z-10">Rs.</span>
                     <Input 
                       required 
                       type="number" 
                       min="0" 
                       placeholder="0.00" 
-                      className="h-14 rounded-2xl pl-14 bg-slate-50 border-slate-200 text-black font-black px-5 focus-visible:ring-indigo-500"
+                      className="h-14 rounded-2xl bg-slate-50 border-slate-200 text-black font-black px-5 pl-14 focus-visible:ring-indigo-500 relative"
                       value={newItemPrice}
                       onChange={(e) => setNewItemPrice(e.target.value)}
                     />
@@ -270,22 +270,56 @@ export default function MenuManagerPage() {
                 </div>
 
                 <div className="space-y-2.5">
-                  <label className="text-sm font-black text-slate-700 ml-1 uppercase tracking-widest">Image URL (Optional)</label>
-                  <div className="relative">
-                    <ImageIcon className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                    <Input 
-                      type="url" 
-                      placeholder="https://example.com/image.jpg" 
-                      className="h-14 rounded-2xl pl-14 bg-slate-50 border-slate-200 text-black font-black px-5 focus-visible:ring-indigo-500"
-                      value={newItemImage}
-                      onChange={(e) => setNewItemImage(e.target.value)}
-                    />
-                  </div>
-                  {newItemImage && (
-                    <div className="mt-4 h-40 w-full rounded-2xl overflow-hidden border border-slate-200 relative shadow-inner bg-slate-50">
-                      <img src={newItemImage} alt="Preview" className="h-full w-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                  <label className="text-sm font-black text-slate-700 ml-1 uppercase tracking-widest">Item Image</label>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div className="relative group">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        id="image-upload"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setNewItemImage(reader.result as string);
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                      <label 
+                        htmlFor="image-upload"
+                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 hover:bg-slate-100 hover:border-indigo-300 transition-all cursor-pointer group"
+                      >
+                        {newItemImage ? (
+                          <div className="relative h-full w-full">
+                            <img src={newItemImage} alt="Preview" className="h-full w-full object-contain rounded-xl p-2" />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded-xl">
+                              <span className="text-white text-xs font-black">Change Image</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center">
+                            <ImageIcon className="h-8 w-8 text-slate-400 mb-2 group-hover:text-indigo-500 transition-colors" />
+                            <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Click to upload image</span>
+                          </div>
+                        )}
+                      </label>
                     </div>
-                  )}
+                    
+                    <div className="relative">
+                      <ImageIcon className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 z-10" />
+                      <Input 
+                        type="url" 
+                        placeholder="...or paste image URL" 
+                        className="h-12 rounded-xl bg-slate-50 border-slate-200 text-black font-black px-5 pl-14 text-sm focus-visible:ring-indigo-500"
+                        value={newItemImage && !newItemImage.startsWith('data:') ? newItemImage : ''}
+                        onChange={(e) => setNewItemImage(e.target.value)}
+                      />
+                    </div>
+                  </div>
                 </div>
 
               </CardContent>
