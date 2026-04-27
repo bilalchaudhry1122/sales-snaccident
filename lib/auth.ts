@@ -56,7 +56,11 @@ export const authConfig: NextAuthConfig = {
   },
   pages: {
     signIn: '/login',
-  }
+  },
+  trustHost: true,
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+  basePath: "/api/auth",
+  debug: process.env.NODE_ENV === 'development',
 };
 
 export const { handlers, signIn, signOut, auth } = NextAuth(authConfig);
