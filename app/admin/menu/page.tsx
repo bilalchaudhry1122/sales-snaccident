@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -158,7 +159,7 @@ export default function MenuManagerPage() {
             ) : filteredItems.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="h-32 text-center text-slate-500 font-medium">
-                  No menu items found. Click "Add New Item" to create one.
+                  No menu items found. Click &quot;Add New Item&quot; to create one.
                 </TableCell>
               </TableRow>
             ) : (
