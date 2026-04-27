@@ -3,13 +3,13 @@ import bcrypt from "bcrypt";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   await dbConnect();
 
   // Check if admin already exists
-  const existingAdmin = await User.findOne({ email: "admin@antigravity.com" });
+  const existingAdmin = await User.findOne({ email: "Admin@sales.com" });
   
   if (existingAdmin) {
     return NextResponse.json({ message: "Database is already seeded with users!" });
