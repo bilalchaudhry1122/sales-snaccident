@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   await dbConnect();
 

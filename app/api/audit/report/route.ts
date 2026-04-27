@@ -3,6 +3,8 @@ import dbConnect from "@/lib/db";
 import Order from "@/models/Order";
 import { withRole } from "@/lib/withRole";
 
+export const dynamic = "force-dynamic";
+
 export const GET = withRole(["admin"])(async (req: NextRequest) => {
   await dbConnect();
   
@@ -27,8 +29,8 @@ export const GET = withRole(["admin"])(async (req: NextRequest) => {
   // Calculate summary
   let totalRevenue = 0;
   let totalDiscounts = 0;
-  const delivered: any[] = [];
-  const cancelled: any[] = [];
+  const delivered = [] as any[];
+  const cancelled = [] as any[];
   
   orders.forEach((order: any) => {
     if (order.status === 'delivered') {
