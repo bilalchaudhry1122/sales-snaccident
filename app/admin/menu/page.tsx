@@ -271,16 +271,50 @@ export default function MenuManagerPage() {
                 </div>
 
                 <div className="space-y-2.5">
-                  <label className="text-sm font-black text-slate-700 ml-1 uppercase tracking-widest">Image URL (Optional)</label>
-                  <div className="relative">
-                    <ImageIcon className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                    <Input 
-                      type="url" 
-                      placeholder="https://example.com/image.jpg" 
-                      className="h-14 rounded-2xl pl-14 bg-slate-50 border-slate-200 text-black font-black px-5 focus-visible:ring-indigo-500"
-                      value={newItemImage}
-                      onChange={(e) => setNewItemImage(e.target.value)}
-                    />
+                  <label className="text-sm font-black text-slate-700 ml-1 uppercase tracking-widest">Image Upload</label>
+                  <div className="flex flex-col gap-4">
+                    <div className="relative">
+                      <Input 
+                        type="file" 
+                        accept="image/*"
+                        className="h-14 rounded-2xl bg-slate-50 border-slate-200 text-black font-black px-5 py-3 focus-visible:ring-indigo-500 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              const img = new Image();
+                              img.onload = () => {
+                                const canvas = document.createElement("canvas");
+                                const MAX_WIDTH = 800;
+                                const MAX_HEIGHT = 800;
+                                let width = img.width;
+                                let height = img.height;
+
+                                if (width > height) {
+                                  if (width > MAX_WIDTH) {
+                                    height *= MAX_WIDTH / width;
+                                    width = MAX_WIDTH;
+                                  }
+                                } else {
+                                  if (height > MAX_HEIGHT) {
+                                    width *= MAX_HEIGHT / height;
+                                    height = MAX_HEIGHT;
+                                  }
+                                }
+                                canvas.width = width;
+                                canvas.height = height;
+                                const ctx = canvas.getContext("2d");
+                                ctx?.drawImage(img, 0, 0, width, height);
+                                setNewItemImage(canvas.toDataURL("image/jpeg", 0.7));
+                              };
+                              img.src = event.target?.result as string;
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                   {newItemImage && (
                     <div className="mt-4 h-40 w-full rounded-2xl overflow-hidden border border-slate-200 relative shadow-inner bg-slate-50">

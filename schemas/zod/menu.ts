@@ -5,7 +5,7 @@ export const menuItemSchema = z.object({
   category: z.string().min(1, "Category is required"),
   price: z.number().int().positive("Price must be a positive integer in cents"),
   description: z.string().optional(),
-  imageUrl: z.string().url().optional().or(z.literal("")),
+  imageUrl: z.string().optional().or(z.literal("")),
   inStock: z.boolean().default(true),
   discount: z.object({
     type: z.enum(["percent", "flat"]),
